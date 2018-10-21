@@ -11,23 +11,27 @@ import sys
 import numpy as np
 import pprint
 
+
 class Perzeptron:
-    
-    '''
+    """
     Class initialization
         maxN: maximum dimensionality of input vector x
         maxM: maximum dimensionality of output vector y
         maxP: maximum number of training examples
-    '''
+    """
     def __init__(self, maxN=101, maxM=30, maxP=200, learning_rate=0.5):
+        self.output = []
         self.learning_rate = learning_rate
         self.maxN = maxN
         self.maxM = maxM
         self.maxP = maxP
+        self.weight_matrix = None
+        self.X = None
+        self.Y = None
         
     # for a scalar input value, returns the output of the logistic function ( 1 / 1 + exp(-x))
     def logistic_function(self, x):
-        return (1 / (1 + np.exp(x)))
+        return 1 / (1 + np.exp(x))
         
     '''
     read the input data from a file
@@ -64,20 +68,19 @@ class Perzeptron:
         if self.X.shape[0] > self.maxP or self.X.shape[0] < 1:
             print("Invalid dimensionality of input! Choose 0 < P < 200")
             sys.exit(1)
-    
-    
+
     def read_weights_from_file(self, filename):
         with open(filename, "r") as fp:
             data = fp.read()
         weight_matrix = []
         for line in data.split("\n"):
             weight_matrix.append([float(val) for val in line.split(" ") if val != ""])
-        
+
         self.weight_matrix = np.array(weight_matrix)
-    
+
     # training the perzeptron on training data matrix X and label matrix Y
     def train(self, weights_filename=None):
-        if weights_filename != None:
+        if weights_filename is not None:
             self.read_weights_from_file(weights_filename)
         else:
             # initialize weight matrix randomly and normalize weights to [0,0.5]
@@ -89,16 +92,15 @@ class Perzeptron:
             for j in range(self.Y.shape[1]):
                 x_i_with_bias = np.concatenate((self.X[i], [1.0]))
                 weighted_sum = sum([x_i_with_bias[k]*self.weight_matrix[k][j] for k in range(len(x_i_with_bias))])
-                #print(weighted_sum)
+                # print(weighted_sum)
                 neuron_output = self.logistic_function(weighted_sum)
-                #print(neuron_output)
+                # print(neuron_output)
                 for l in range(len(x_i_with_bias)):
                     # perzeptron training rule
                     weight_update = (-1.0)*(self.learning_rate*(self.Y[i][j]-neuron_output)*x_i_with_bias[l])
                     self.weight_matrix[l][j] += weight_update
         
         # calculate final perzeptron output
-        self.output = []
         for i in range(self.X.shape[0]):
             partial_output = []
             for j in range(self.Y.shape[1]):
@@ -117,11 +119,15 @@ class Perzeptron:
             neuron_output = self.logistic_function(weighted_sum)
             output.append(neuron_output)
         return output
-    
+
+
 def main():
     perzeptron = Perzeptron(learning_rate=0.75)
     perzeptron.read_input_data("PA-A-train.dat")
     perzeptron.train()
+
+    # To test with weights from a file, uncomment this
+    #perzeptron.train(weights_filename='weights.dat')
     
     print("Weight matrix after training:\n")
     print(perzeptron.weight_matrix)
