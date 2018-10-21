@@ -9,6 +9,7 @@ A python class to model a 2 layer Perzeptron.
 """
 import sys
 import numpy as np
+import pprint
 
 class Perzeptron:
     
@@ -42,8 +43,8 @@ class Perzeptron:
         Y = []
         
         for line in data.split("\n"):
-            x = [float(val) for val in line.split(":")[0].split(" ") if val != ""]
-            y = [float(val) for val in line.split(":")[1].split(" ") if val != ""]
+            x = [float(val) for val in line.split("\t")[0].split(" ") if val != ""]
+            y = [float(val) for val in line.split("\t")[1].split(" ") if val != ""]
 
             X.append(x)
             Y.append(y)
@@ -118,15 +119,15 @@ class Perzeptron:
         return output
     
 def main():
-    perzeptron = Perzeptron(learning_rate=2.0)
+    perzeptron = Perzeptron(learning_rate=0.75)
     perzeptron.read_input_data("PA-A-train.dat")
-    perzeptron.train("weights.dat")
+    perzeptron.train()
     
     print("Weight matrix after training:\n")
     print(perzeptron.weight_matrix)
     
     print("\nFinal perzeptron output for the training data:\n")
-    print(perzeptron.output)
+    pprint.pprint(perzeptron.output)
 
 
 if __name__ == "__main__":
