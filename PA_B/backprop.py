@@ -50,7 +50,7 @@ class MLP:
                     x += self.layer_error_matrix[i+1][k] * self.weight_matrix[i+1][k][j]
                 self.layer_error_matrix[i][j] = x * self.transfer_functions[i].derivative(output[i][j])
 
-    def _update_layer_weights(self, i, output):
+    def _update_layer_weights(self, i, output, input_vector):
         for j in range(len(self.weight_matrix[i])):
             for k in range(len(self.weight_matrix[i][j])):
                 self.weight_matrix[i][j][k] += self.learning_rates[i] * self.layer_error_matrix[i][j] * output[i][j] / len(self.weight_matrix[i][j])
@@ -70,7 +70,7 @@ class MLP:
 
         # Calculate the total error of the last layer, using quadratic differences
         total_error = sum([(x - y) ** 2 for x, y in zip(teacher_vector, net_output[-1])])
-        print(total_error)
+        #print(total_error)
 
         # Calculate the error for each neuron, iterating backwards through the network
         for i in reversed(range(len(self.weight_matrix))):
@@ -78,17 +78,28 @@ class MLP:
 
         # Update the weights
         for i in range(len(self.weight_matrix)):
-            self._update_layer_weights(i, net_output)
+            self._update_layer_weights(i, net_output, input_vector)
 
         return total_error
 
     def backpropagation(self, patterns, iterations):
         learning_curve = []
         for _ in range(iterations):
+            random.shuffle(patterns)
             for input_vector, teacher_vector in patterns:
                 learning_curve.append(self._backprop_step(input_vector, teacher_vector))
 
         return learning_curve
+    
+    def calculate_output(self, input_vector):
+        prev_output = input_vector
+
+        # Forward through the net
+        for transfer, weights in zip(self.transfer_functions, self.weight_matrix):
+            prev_output = self._calculate_layer_output(prev_output, weights, transfer)
+        
+        net_output = prev_output
+        return net_output
 
 
 class IdentityTransfer:
@@ -104,7 +115,7 @@ class IdentityTransfer:
 class LogisticTransfer:
     @staticmethod
     def activate(x):
-        return 1 / (1 + np.exp(x))
+        return 1 / (1 + np.exp(-x))
 
     @classmethod
     def derivative(cls, x):
@@ -139,12 +150,17 @@ def main():
         teacher_vector = [float(x) for x in l[in_size:]]
         patterns.append((input_vector, teacher_vector))
 
-    mlp = MLP([in_size, 5, 5, out_size], [LogisticTransfer(), LogisticTransfer(), LogisticTransfer(), LogisticTransfer()], [0.05, 0.05, 0.05])
-    learning_curve = mlp.backpropagation(patterns, 1000)
+    mlp = MLP([in_size, 5, 5, out_size], [TanhTransfer(), TanhTransfer(), TanhTransfer(),TanhTransfer()], [0.05, 0.05, 0.05])
+    learning_curve = mlp.backpropagation(patterns, 100)
 
     with open('learning.curve', 'w') as fp:
         for error in learning_curve:
             fp.write("%s\n" % error)
+            
+    print(mlp.calculate_output([0.0,0.0]))
+    print(mlp.calculate_output([0.0,1.0]))
+    print(mlp.calculate_output([1.0,0.0]))
+    print(mlp.calculate_output([1.0,1.0]))
 
     # pprint(mlp.weight_matrix)
 
