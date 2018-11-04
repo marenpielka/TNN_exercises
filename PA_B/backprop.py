@@ -43,7 +43,7 @@ class MLP:
         for j in range(len(self.weight_matrix[i])):
             # Error of the neuron
             if len(self.weight_matrix) == i+1:
-                self.layer_error_matrix[i][j] = self.transfer_functions[i].derivative(output[i][j]) * (teacher[j] - output[i][j])
+                self.layer_error_matrix[i][j] = (self.transfer_functions[i].derivative(output[i][j]) * (teacher[j] - output[i][j]))**2
             else:
                 x = 0
                 for k in range(len(self.layer_error_matrix[i+1])):  # TODO: Bias?
@@ -56,8 +56,6 @@ class MLP:
                 self.weight_matrix[i][j][k] += self.learning_rates[i] * self.layer_error_matrix[i][j] * output[i][j] / len(self.weight_matrix[i][j])
 
     def _backprop_step(self, input_vector, teacher_vector):
-        #assert len(input_vector) + 1 == len(self.weight_matrix[0])
-
         prev_output = input_vector
         net_output = []
 
@@ -85,8 +83,11 @@ class MLP:
     def backpropagation(self, patterns, iterations):
         learning_curve = []
         for _ in range(iterations):
+            total_error = 0
+            random.shuffle(patterns)
             for input_vector, teacher_vector in patterns:
-                learning_curve.append(self._backprop_step(input_vector, teacher_vector))
+                total_error += self._backprop_step(input_vector, teacher_vector)
+            learning_curve.append(total_error)
 
         return learning_curve
 
@@ -123,7 +124,7 @@ class TanhTransfer:
 
 
 def main():
-    with open('training.dat', 'r') as fp:
+    with open('PA-B-train-04.dat', 'r') as fp:
         lines = list(fp)
 
     # Parse dimensions from the input file
@@ -139,9 +140,11 @@ def main():
         teacher_vector = [float(x) for x in l[in_size:]]
         patterns.append((input_vector, teacher_vector))
 
-    mlp = MLP([in_size, 5, 5, out_size], [LogisticTransfer(), LogisticTransfer(), LogisticTransfer(), LogisticTransfer()], [0.05, 0.05, 0.05])
-    learning_curve = mlp.backpropagation(patterns, 1000)
+    # Build the MLP and execute the backpropagation
+    mlp = MLP([in_size, 5, 5, out_size], [LogisticTransfer(), LogisticTransfer(), LogisticTransfer(), LogisticTransfer()], [0.01, 0.01, 0.1])
+    learning_curve = mlp.backpropagation(patterns, 100)
 
+    # Save the learning curve
     with open('learning.curve', 'w') as fp:
         for error in learning_curve:
             fp.write("%s\n" % error)
