@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import re
 from pprint import pprint
 
 
@@ -38,19 +39,6 @@ class MLP:
             output.append(transfer_function.activate(weighted_sum))
         return output
 
-    def _calculate_delta_values_output(self, learning_rate, transfer, layer_weights, output, teacher):
-        layer_weight_deltas = []
-        for t, out, neuron_weights, in zip(teacher, output, layer_weights):
-            neuron_weight_deltas = []
-            # Delta of the neuron
-            d = transfer.derivative(out) * (t - out)
-            for w in neuron_weights:
-                # Delta of a weight of the neuron (w_ij in the lecture)
-                neuron_weight_deltas.append(learning_rate * d * out)
-            layer_weight_deltas.append(neuron_weight_deltas)
-
-        return layer_weight_deltas
-
     def _backprop_error(self, i, output, teacher):
         for j in range(len(self.weight_matrix[i])):
             # Error of the neuron
@@ -68,7 +56,7 @@ class MLP:
                 self.weight_matrix[i][j][k] += self.learning_rates[i] * self.layer_error_matrix[i][j] * output[i][j] / len(self.weight_matrix[i][j])
 
     def _backprop_step(self, input_vector, teacher_vector):
-        assert len(input_vector) + 1 == len(self.weight_matrix[0])
+        #assert len(input_vector) + 1 == len(self.weight_matrix[0])
 
         prev_output = input_vector
         net_output = []
@@ -78,7 +66,7 @@ class MLP:
             prev_output = self._calculate_layer_output(prev_output, weights, transfer)
             net_output.append(prev_output)
 
-        pprint(net_output)
+        #pprint(net_output)
 
         # Calculate the total error of the last layer, using quadratic differences
         total_error = sum([(x - y) ** 2 for x, y in zip(teacher_vector, net_output[-1])])
@@ -99,6 +87,8 @@ class MLP:
         for _ in range(iterations):
             for input_vector, teacher_vector in patterns:
                 learning_curve.append(self._backprop_step(input_vector, teacher_vector))
+
+        return learning_curve
 
 
 class IdentityTransfer:
@@ -133,8 +123,29 @@ class TanhTransfer:
 
 
 def main():
-    mlp = MLP([2, 3, 2], [LogisticTransfer(), LogisticTransfer(), LogisticTransfer()], [0.05, 0.05, 0.05])
-    mlp.backpropagation([([1, 2], [3, 4])], 100)
+    with open('training.dat', 'r') as fp:
+        lines = list(fp)
+
+    # Parse dimensions from the input file
+    m = re.search(r'P=(?P<patterns>[0-9]+)[ ]*N=(?P<input>[0-9]+)[ ]*M=(?P<output>[0-9]+)', lines[1])
+    in_size = int(m.group(2))
+    out_size = int(m.group(3))
+    patterns = []
+
+    # Separate input vectors from teacher vectors
+    for line in lines[2:]:
+        l = list(filter(None, line[:-1].split(' ')))
+        input_vector = [float(x) for x in l[:in_size]]
+        teacher_vector = [float(x) for x in l[in_size:]]
+        patterns.append((input_vector, teacher_vector))
+
+    mlp = MLP([in_size, 5, 5, out_size], [LogisticTransfer(), LogisticTransfer(), LogisticTransfer(), LogisticTransfer()], [0.05, 0.05, 0.05])
+    learning_curve = mlp.backpropagation(patterns, 1000)
+
+    with open('learning.curve', 'w') as fp:
+        for error in learning_curve:
+            fp.write("%s\n" % error)
+
     # pprint(mlp.weight_matrix)
 
 
