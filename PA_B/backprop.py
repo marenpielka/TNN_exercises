@@ -11,9 +11,8 @@ class MLP:
 
         :param neurons_per_layer: A list of integers. Each integer sets the number of neurons for a layer.
         :param transfer_fcn_per_layer: A list of transfer functions, for each layer except the input layer.
-        :param learning_rates_per_layer: A list of floats.
+        :param learning_rates_per_layer: A list of floats, for each layer except the input layer..
         """
-        assert len(neurons_per_layer) == len(transfer_fcn_per_layer)
         random.seed(13579)
 
         self.learning_rates = learning_rates_per_layer
@@ -67,7 +66,7 @@ class MLP:
                     x += self.layer_error_matrix[i+1][k] * self.weight_matrix[i+1][k][j]
                 self.layer_error_matrix[i][j] = x * self.transfer_functions[i].derivative(output[i][j])
 
-    def _update_layer_weights(self, i, output, input_vector):
+    def _update_layer_weights(self, i, output):
         for j in range(len(self.weight_matrix[i])):
             for k in range(len(self.weight_matrix[i][j])):
                 self.weight_matrix[i][j][k] += self.learning_rates[i] * self.layer_error_matrix[i][j] * output[i][j] / len(self.weight_matrix[i][j])
@@ -90,7 +89,7 @@ class MLP:
 
         # Update the weights
         for i in range(len(self.weight_matrix)):
-            self._update_layer_weights(i, net_output, input_vector)
+            self._update_layer_weights(i, net_output)
 
         return total_error
 
@@ -171,7 +170,9 @@ def main():
     in_size, out_size, patterns = read_patterns_from_file('PA-B-train-04.dat')
 
     # Build the MLP and execute the backpropagation
-    mlp = MLP([in_size, 5, 5, out_size], [LogisticTransfer(), LogisticTransfer(), LogisticTransfer(), LogisticTransfer()], [0.01, 0.01, 0.1])
+    mlp = MLP([in_size, 5, 5, out_size],
+              [LogisticTransfer(), LogisticTransfer(), LogisticTransfer()],
+              [0.01, 0.01, 0.1])
     learning_curve = mlp.backpropagation(patterns, 500)
 
     # Save the learning curve
@@ -186,7 +187,7 @@ def main():
     for pattern, teacher in test_patterns:
         output = mlp.calculate_output(pattern)
         test_error += sum([(x - y) ** 2 for x, y in zip(teacher, output)])
-    print("Average error of test set: ".format(test_error/len(test_patterns)))
+    print("Average error of test set: {}".format(test_error/len(test_patterns)))
 
 
 if __name__ == "__main__":
