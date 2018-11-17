@@ -113,7 +113,6 @@ def main():
     # Parse dimensions from the input file
     m = re.search(r'P=(?P<patterns>[0-9]+)[ ]*N=(?P<input>[0-9]+)[ ]*M=(?P<output>[0-9]+)', lines[1])
     in_size = int(m.group(2))
-    out_size = int(m.group(3))
     patterns = []
 
     # Separate input vectors from teacher vectors
