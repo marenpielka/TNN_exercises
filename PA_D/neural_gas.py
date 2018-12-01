@@ -9,7 +9,8 @@ class NeuralGas:
     def __init__(self, dimensions, num_neurons):
         self.centers = [[random.uniform(0, 1) for _ in range(dimensions)] for _ in range(num_neurons)]
 
-        self.s = 2
+        # Adjusts the width of the gaussian
+        self.s = 6
 
         # This holds the calculated responses for the last applied stimulus
         self.cached_responses = []
@@ -56,6 +57,13 @@ class MultiNeuralGas:
         self.partners = [NeuralGas(dimensions, neurons) for _ in range(partner_networks)]
 
     def train(self, patterns, iterations):
+        """
+        Trains the network on the given patterns.
+
+        :param patterns:
+        :param iterations:
+        """
+
         for t in range(iterations):
             random.shuffle(patterns)
 
@@ -63,6 +71,13 @@ class MultiNeuralGas:
                 self._training_step(stimulus, t)
 
     def _training_step(self, stimulus, t):
+        """
+        Executes a single step of learning by processing a single pattern.
+        :param stimulus:
+        :param t: The current timestep
+        :return:
+        """
+
         # Calculate the minimal responses of all networks
         responses = []
         for network in self.partners:
@@ -87,8 +102,14 @@ class MultiNeuralGas:
                     fp.write('\n')
 
 
-def read_patterns_from_file(filename):
-    with open(filename, 'r') as fp:
+def training_file():
+    """
+    Trains the network with the patterns from PA-D-train.dat
+    """
+    mngas = MultiNeuralGas(4, 2, 20)
+    mngas.store_centers('initial.net')
+
+    with open("PA-D-train.dat", 'r') as fp:
         lines = list(fp)
 
     patterns = []
@@ -96,17 +117,27 @@ def read_patterns_from_file(filename):
         p = [float(x) for x in filter(None, line[:-1].split(' '))]
         patterns.append(p)
 
-    return patterns
-
-
-def main():
-    mngas = MultiNeuralGas(4, 2, 20)
-    mngas.store_centers('initial.net')
-
-    patterns = read_patterns_from_file('PA-D-train.dat')
     mngas.train(patterns, 120)
     mngas.store_centers('PA-D.net')
 
 
+def training_random():
+    """
+    Trains the network with patterns drawn uniformly from 3 non-overlapping areas.
+    The boundaries can be read from the initialization.
+    """
+    patterns = []
+    patterns += [[random.uniform(0.8, 1), random.uniform(0.1, 0.25)] for _ in range(300)]
+    patterns += [[random.uniform(0.05, 0.45), random.uniform(0.5, 0.95)] for _ in range(300)]
+    patterns += [[random.uniform(0.6, 0.8), random.uniform(0.6, 0.8)] for _ in range(300)]
+
+    mngas = MultiNeuralGas(4, 2, 20)
+    mngas.store_centers('initial.net')
+    mngas.train(patterns, 1000)
+    mngas.store_centers('PA-D.net')
+
+
 if __name__ == "__main__":
-    main()
+    #training_file()
+    training_random()
+
