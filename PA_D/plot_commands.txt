@@ -1,0 +1,2 @@
+plot "initial.net" every ::0::19 title "Net 1", "initial.net" every ::20::39 title "Net 2", "initial.net" every ::40::59 title "Net 3", "initial.net" every ::60::80 title "Net 4"
+plot "PA-D.net" every ::0::19 title "Net 1", "PA-D.net" every ::20::39 title "Net 2", "PA-D.net" every ::40::59 title "Net 3", "PA-D.net" every ::60::80 title "Net 4"
