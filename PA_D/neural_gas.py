@@ -8,8 +8,6 @@ random.seed(10001)
 class NeuralGas:
     def __init__(self, dimensions, num_neurons, gaussian_width):
         self.centers = [[random.uniform(0, 1) for _ in range(dimensions)] for _ in range(num_neurons)]
-
-        # Adjusts the width of the gaussian
         self.s = gaussian_width
 
         # This holds the calculated responses for the last applied stimulus
@@ -114,6 +112,7 @@ class MultiNeuralGas:
                     fp.write('\n')
 
     def learning_rate(self, t, iterations):
+        # Max is the learning rate in the beginning and min the rate to reach in the end
         return self.max * ((self.max / self.min) ** (-t / iterations))
 
 
@@ -146,13 +145,13 @@ def training_random():
     patterns += [[random.uniform(0.05, 0.15), random.uniform(0.8, 0.95)] for _ in range(300)]
     patterns += [[random.uniform(0.6, 0.8), random.uniform(0.6, 0.8)] for _ in range(300)]
 
-    mngas = MultiNeuralGas(4, 2, 30, lrate_max=0.01, lrate_min=0.001, gaussian_width=1.5)
+    mngas = MultiNeuralGas(4, 2, 30, lrate_max=0.05, lrate_min=0.001, gaussian_width=3)
     mngas.store_centers('initial.net')
     mngas.train(patterns, 1000)
     mngas.store_centers('PA-D.net')
 
 
 if __name__ == "__main__":
-    training_file()
-    #training_random()
+    #training_file()
+    training_random()
 
