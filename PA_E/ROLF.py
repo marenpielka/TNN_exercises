@@ -95,7 +95,7 @@ class ROLF:
 
         def train(self, pattern):
             dist = self.rolf.dist(pattern, self.center_pos)
-            dist_vector = [abs(x1 - x2) for (x1, x2) in zip(pattern, self.center_pos)]
+            dist_vector = [x1 - x2 for (x1, x2) in zip(pattern, self.center_pos)]
 
             self.center_pos = [self.eta_c * (x1 + x2) for (x1, x2) in zip(self.center_pos, dist_vector)]
             self.sigma = self.sigma + self.eta_sigma * (dist - self.sigma)
