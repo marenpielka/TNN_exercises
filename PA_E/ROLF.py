@@ -87,7 +87,7 @@ class ROLF:
             self.eta_sigma = eta_sigma
             self.eta_c = eta_c
             self.rolf = rolf
-
+            
         '''
         Train a neuron with a new training pattern, and update the center position
         and the perceptive area.
@@ -95,10 +95,12 @@ class ROLF:
 
         def train(self, pattern):
             dist = self.rolf.dist(pattern, self.center_pos)
-            dist_vector = [abs(x1 - x2) for (x1, x2) in zip(pattern, self.center_pos)]
+            dist_vector = [x1 - x2 for (x1, x2) in zip(pattern, self.center_pos)]
 
-            self.center_pos = [self.eta_c * (x1 + x2) for (x1, x2) in zip(self.center_pos, dist_vector)]
+            self.center_pos = [((self.eta_c *x1) + x2) for (x1, x2) in zip(dist_vector, self.center_pos)]
             self.sigma = self.sigma + self.eta_sigma * (dist - self.sigma)
+
+            
 
 
 def main():
