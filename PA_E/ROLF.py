@@ -22,7 +22,7 @@ class ROLF:
     max_num_neurons, max_num_patterns: maximum number of neurons/patterns
     """
 
-    def __init__(self, eta_sigma, eta_c, init_sigma, init_method, rho=2.0, max_num_neurons=1000,
+    def __init__(self, eta_sigma, eta_c, init_sigma, init_method, rho=0.5, max_num_neurons=1000,
                  max_num_patterns=100000, max_input_dim=10):
         self.eta_sigma = eta_sigma
         self.eta_c = eta_c

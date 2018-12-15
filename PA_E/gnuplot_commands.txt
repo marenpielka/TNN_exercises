@@ -1,0 +1,2 @@
+Output: plot "output_2dim.txt" with circles
+Training patterns: plot "training_2dim.dat"
