@@ -28,6 +28,7 @@ from sklearn import svm
     (https://scikit-learn.org/stable/auto_examples/svm/plot_iris.html)
 '''
 
+
 def make_meshgrid(x, y, h=.02):
     """Create a mesh of points to plot in
 
@@ -63,6 +64,7 @@ def plot_contours(ax, clf, xx, yy, **params):
     Z = Z.reshape(xx.shape)
     out = ax.contourf(xx, yy, Z, **params)
     return out
+
 
 def visualize_svm_results(models, titles, X, y):
     # Set-up 2x2 grid for plotting.
@@ -103,7 +105,8 @@ def read_data_from_file(filename):
                 y.append(float(l[0]))
             i += 1
                 
-    return X,y
+    return X, y
+
 
 def main():
     '''
@@ -116,14 +119,9 @@ def main():
     
     # Read input data from file
     X, y = read_data_from_file('PA-F_t7.dat')
-    X_test, y_test = read_data_from_file("PA-F_Test.dat")
-    
     X = np.array(X)
     y = np.array(y)
-    X_test = np.array(X_test)
-    y_test = np.array(y_test)
-            
-    
+
     # we create an instance of SVM and fit out data. We do not scale our
     # data since we want to plot the support vectors
     C = 2.0  # SVM regularization parameter
@@ -144,10 +142,7 @@ def main():
         print(model.support_vectors_)
         break
     '''
-    
-    X_test = X
-    y_test = y
-    visualize_svm_results(models, titles, X_test, y_test)
+    visualize_svm_results(models, titles, X, y)
     
 
 if __name__ == "__main__":
