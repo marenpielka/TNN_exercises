@@ -80,8 +80,8 @@ def visualize_svm_results(models, titles, X, y):
         ax.scatter(X0, X1, c=y, cmap=plt.cm.coolwarm, s=20, edgecolors='k')
         ax.set_xlim(xx.min(), xx.max())
         ax.set_ylim(yy.min(), yy.max())
-        ax.set_xlabel('Sepal length')
-        ax.set_ylabel('Sepal width')
+        ax.set_xlabel('X1')
+        ax.set_ylabel('X2')
         ax.set_xticks(())
         ax.set_yticks(())
         ax.set_title(title)
@@ -109,19 +109,18 @@ def read_data_from_file(filename):
 
 
 def main():
-    '''
     # input data from task 64
     X = np.array([[0.0, 3.0], [1.0, 3.0], [1.0, 2.0], [2.0, 2.0], [2.0, 4.0],\
                   [5.0, 8.0], [0.0, -3.0], [1.0, -3.0], [1.0, -2.0], [2.0, -4.0],\
                   [3.0, 1.0],[3.0, 0.0], [3.0,-2.0], [4.0, -1.0], [5.0, 1.0]])
     y = np.concatenate((np.zeros(6), np.ones(9)))
-    '''
     
+    '''    
     # Read input data from file
     X, y = read_data_from_file('PA-F_t7.dat')
     X = np.array(X)
     y = np.array(y)
-
+    '''
     # we create an instance of SVM and fit out data. We do not scale our
     # data since we want to plot the support vectors
     C = 2.0  # SVM regularization parameter
